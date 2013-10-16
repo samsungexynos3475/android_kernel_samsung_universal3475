@@ -201,10 +201,11 @@ static void dump_completed_IO(struct inode *inode, struct list_head *head)
 static void ext4_add_complete_io(ext4_io_end_t *io_end)
 {
 	struct ext4_inode_info *ei = EXT4_I(io_end->inode);
+	struct ext4_sb_info *sbi = EXT4_SB(io_end->inode->i_sb);
 	struct workqueue_struct *wq;
 	unsigned long flags;
 
-	BUG_ON(!(io_end->flag & EXT4_IO_END_UNWRITTEN));
+	WARN_ON(!(io_end->flag & EXT4_IO_END_UNWRITTEN));
 	spin_lock_irqsave(&ei->i_completed_io_lock, flags);
 	if (io_end->handle) {
 		wq = EXT4_SB(io_end->inode->i_sb)->rsv_conversion_wq;
