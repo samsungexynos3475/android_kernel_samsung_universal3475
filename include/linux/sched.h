@@ -2675,7 +2675,7 @@ static inline bool __must_check current_set_polling_and_test(void)
 	 *
 	 * XXX: assumes set/clear bit are identical barrier wise.
 	 */
-	smp_mb__after_clear_bit();
+	smp_mb__after_atomic();
 
 	return unlikely(tif_need_resched());
 }
