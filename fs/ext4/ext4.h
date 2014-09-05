@@ -2922,6 +2922,8 @@ extern void ext4_resize_end(struct super_block *sb);
 #ifndef dir_relax
 static inline int dir_relax(struct inode *inode) { return 1; }
 #endif
+
+#define sb_bread_unmovable sb_bread
 #endif	/* __KERNEL__ */
 
 #endif	/* _EXT4_H */
