@@ -25,12 +25,22 @@
 #include <linux/delay.h>
 #include <linux/pm_qos.h>
 
+#include <linux/sysfs_helpers.h>
+
 #include <mach/cpufreq.h>
 #include <mach/asv-exynos.h>
 #include <mach/tmu.h>
 
 #include <plat/cpu.h>
 #include <linux/exynos-ss.h>
+
+#ifdef CONFIG_SOC_EXYNOS3475
+#define CL_MAX_VOLT           1381250
+#define CL_MIN_VOLT           500000
+#define CL_VOLT_STEP           6250
+#else
+#error "Please define core voltage ranges for current SoC."
+#endif
 
 #ifdef CONFIG_SMP
 struct lpj_info {
@@ -742,9 +752,99 @@ static ssize_t store_enable_self_discharging(struct kobject *kobj, struct attrib
 }
 #endif
 
+static size_t get_freq_table_size(struct cpufreq_frequency_table *freq_table)
+{
+	size_t tbl_sz = 0;
+	int i;
+
+	for (i = 0; freq_table[i].frequency != CPUFREQ_TABLE_END; i++)
+		tbl_sz++;
+
+	return tbl_sz;
+}
+
+static ssize_t show_volt_table(struct kobject *kobj,
+			     struct attribute *attr, char *buf)
+{
+	int i, count = 0;
+	size_t tbl_sz = 0, pr_len;
+	struct cpufreq_frequency_table *freq_table = exynos_info->freq_table;
+
+	for (i = 0; freq_table[i].frequency != CPUFREQ_TABLE_END; i++)
+		tbl_sz++;
+
+	if (tbl_sz == 0)
+		return -EINVAL;
+
+	pr_len = (size_t)((PAGE_SIZE - 2) / tbl_sz);
+
+	for (i = 0; freq_table[i].frequency != CPUFREQ_TABLE_END; i++) {
+		if (freq_table[i].frequency != CPUFREQ_ENTRY_INVALID)
+			count += snprintf(&buf[count], pr_len, "%d %d\n",
+					freq_table[i].frequency,
+					exynos_info->volt_table[i]);
+	}
+
+	return count;
+}
+
+static ssize_t store_volt_table(struct kobject *kobj, struct attribute *attr,
+				       const char *buf, size_t count)
+{
+	int i, tokens, rest, target, invalid_offset;
+	struct cpufreq_frequency_table *freq_table = exynos_info->freq_table;
+	size_t tbl_sz = get_freq_table_size(freq_table);
+	int t[tbl_sz];
+
+	invalid_offset = 0;
+
+	if ((tokens = read_into((int*)&t, tbl_sz, buf, count)) < 0)
+		return -EINVAL;
+
+	target = -1;
+	if (tokens == 2) {
+		for (i = 0; (freq_table[i].frequency != CPUFREQ_TABLE_END); i++) {
+			unsigned int freq = freq_table[i].frequency;
+			if (freq == CPUFREQ_ENTRY_INVALID)
+				continue;
+
+			if (t[0] == freq) {
+				target = i;
+				break;
+			}
+		}
+	}
+
+	mutex_lock(&cpufreq_lock);
+
+	if (tokens == 2 && target > 0) {
+		if ((rest = t[1] % CL_VOLT_STEP) != 0)
+			t[1] += CL_VOLT_STEP - rest;
+		
+		sanitize_min_max(t[1], CL_MIN_VOLT, CL_MAX_VOLT);
+		exynos_info->volt_table[target] = t[1];
+	} else {
+		for (i = 0; i < tokens; i++) {
+			while (freq_table[i + invalid_offset].frequency == CPUFREQ_ENTRY_INVALID)
+				++invalid_offset;
+
+			if ((rest = t[i] % CL_VOLT_STEP) != 0)
+				t[i] += CL_VOLT_STEP - rest;
+			
+			sanitize_min_max(t[i], CL_MIN_VOLT, CL_MAX_VOLT);
+			exynos_info->volt_table[i + invalid_offset] = t[i];
+		}
+	}
+
+	mutex_unlock(&cpufreq_lock);
+
+	return count;
+}
+
 define_one_global_ro(freq_table);
 define_one_global_rw(min_freq);
 define_one_global_rw(max_freq);
+define_one_global_rw(volt_table);
 
 static struct global_attr cpufreq_table =
 		__ATTR(cpufreq_table, S_IRUGO, show_freq_table, NULL);
@@ -761,6 +861,7 @@ static struct attribute *cpufreq_attributes[] = {
 	&freq_table.attr,
 	&min_freq.attr,
 	&max_freq.attr,
+	&volt_table.attr,
 	NULL
 };
 
