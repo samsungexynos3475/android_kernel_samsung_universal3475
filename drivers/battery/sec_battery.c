@@ -4257,9 +4257,14 @@ ssize_t sec_bat_store_attrs(
 		break;
 	case STORE_MODE:
 		if (sscanf(buf, "%d\n", &x) == 1) {
-			if (x)
-				battery->store_mode = true;
+			battery->store_mode = x ? true : false;
 			ret = count;
+			if (battery->store_mode) {
+				union power_supply_propval value;
+				value.intval = battery->store_mode;
+				psy_do_property(battery->pdata->charger_name, set,
+						POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX, value);
+			}
 		}
 		break;
 	case UPDATE:
@@ -6665,7 +6670,10 @@ static int __devinit sec_battery_probe(struct platform_device *pdev)
 	battery->test_mode = 0;
 	battery->factory_mode = false;
 #if defined(CONFIG_STORE_MODE)
-	battery->store_mode = true;
+	battery->store_mode = false;
+	value.intval = battery->store_mode;
+	psy_do_property(battery->pdata->charger_name, set,
+			POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX, value);
 #else
 	battery->store_mode = false;
 #endif
