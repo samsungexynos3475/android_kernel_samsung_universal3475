@@ -2971,6 +2971,9 @@ static inline void kvfree(const void *addr)
 		kfree(addr);
 }
 #endif
+
+#define pagevec_lookup_range_tag(pvec, mapping, index, end, tag, nr_pages) \
+	pagevec_lookup_tag(pvec, mapping, index, tag, nr_pages)
 #endif	/* __KERNEL__ */
 
 #endif	/* _EXT4_H */
