@@ -857,6 +857,7 @@ int ext4_da_write_inline_data_begin(struct address_space *mapping,
 	struct page *page;
 	struct ext4_iloc iloc;
 
+
 	ret = ext4_get_inode_loc(inode, &iloc);
 	if (ret)
 		return ret;
