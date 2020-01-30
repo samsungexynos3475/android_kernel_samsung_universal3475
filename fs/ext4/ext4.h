@@ -2979,4 +2979,7 @@ static inline void kvfree(const void *addr)
 	pagevec_lookup_tag(pvec, mapping, index, tag, nr_pages)
 #endif	/* __KERNEL__ */
 
+#define EFSBADCRC	EBADMSG		/* Bad CRC detected */
+#define EFSCORRUPTED	EUCLEAN		/* Filesystem is corrupted */
+
 #endif	/* _EXT4_H */
