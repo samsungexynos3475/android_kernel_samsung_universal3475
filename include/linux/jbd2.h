@@ -1415,6 +1415,10 @@ static inline tid_t  jbd2_get_latest_transaction(journal_t *journal)
 #define JBUFFER_TRACE(jh, info)	do {} while (0)
 
 #define getblk_unmovable __getblk
+
+#ifndef sb_is_blkdev_sb
+#define sb_is_blkdev_sb(sb) ((sb)->s_bdev != NULL)
+#endif
 #endif	/* __KERNEL__ */
 
 #endif	/* _LINUX_JBD2_H */
