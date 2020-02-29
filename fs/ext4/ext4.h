@@ -1256,7 +1256,7 @@ struct ext4_sb_info {
 	loff_t s_bitmap_maxbytes;	/* max bytes for bitmap files */
 	struct buffer_head * s_sbh;	/* Buffer containing the super block */
 	struct ext4_super_block *s_es;	/* Pointer to the super block in the buffer */
-	struct buffer_head **s_group_desc;
+	struct buffer_head * __rcu *s_group_desc;
 	unsigned int s_mount_opt;
 	unsigned int s_mount_opt2;
 	unsigned int s_mount_flags;
@@ -1447,6 +1447,23 @@ static inline void ext4_inode_aio_set(struct inode *inode, ext4_io_end_t *io)
 {
 	inode->i_private = io;
 }
+
+/*
+ * Returns: sbi->field[index]
+ * Used to access an array element from the following sbi fields which require
+ * rcu protection to avoid dereferencing an invalid pointer due to reassignment
+ * - s_group_desc
+ * - s_group_info
+ * - s_flex_group
+ */
+#define sbi_array_rcu_deref(sbi, field, index)				   \
+({									   \
+	typeof(*((sbi)->field)) _v;					   \
+	rcu_read_lock();						   \
+	_v = ((typeof(_v)*)rcu_dereference((sbi)->field))[index];	   \
+	rcu_read_unlock();						   \
+	_v;								   \
+})
 
 /*
  * Inode dynamic state flags
@@ -2260,6 +2277,7 @@ extern int ext4_generic_delete_entry(handle_t *handle,
 				     int csum_size);
 
 /* resize.c */
+extern void ext4_kvfree_array_rcu(void *to_free);
 extern int ext4_group_add(struct super_block *sb,
 				struct ext4_new_group_data *input);
 extern int ext4_group_extend(struct super_block *sb,
@@ -2924,6 +2942,16 @@ static inline int dir_relax(struct inode *inode) { return 1; }
 #endif
 
 #define sb_bread_unmovable sb_bread
+
+#ifndef kvfree
+static inline void kvfree(const void *addr)
+{
+	if (is_vmalloc_addr(addr))
+		vfree(addr);
+	else
+		kfree(addr);
+}
+#endif
 #endif	/* __KERNEL__ */
 
 #endif	/* _EXT4_H */
