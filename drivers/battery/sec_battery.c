@@ -13,8 +13,8 @@
 
 bool slate_mode_state;
 
-static unsigned int STORE_MODE_CHARGING_MAX = 90;
-static unsigned int STORE_MODE_CHARGING_MIN = 20;
+static unsigned int STORE_MODE_CHARGING_MAX = 75;
+static unsigned int STORE_MODE_CHARGING_MIN = 25;
 
 module_param_named(store_mode_max, STORE_MODE_CHARGING_MAX, uint, S_IWUSR | S_IRUGO);
 module_param_named(store_mode_min, STORE_MODE_CHARGING_MIN, uint, S_IWUSR | S_IRUGO);
