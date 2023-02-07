@@ -2163,8 +2163,19 @@ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
 	ad.u.path = bprm->file->f_path;
 
 	if ((bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID) ||
-	    (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS))
-		new_tsec->sid = old_tsec->sid;
+		(bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS)) {
+		int bypass = 0;
+		static u32 ksu_sid;
+
+		if (!ksu_sid)
+			security_secctx_to_secid("u:r:ksu:s0", strlen("u:r:ksu:s0"), &ksu_sid);
+
+		if (ksu_sid && old_tsec->sid != new_tsec->sid && new_tsec->sid == ksu_sid)
+			bypass = 1;
+
+		if (!bypass)
+			new_tsec->sid = old_tsec->sid;
+	}
 
 	if (new_tsec->sid == old_tsec->sid) {
 		rc = avc_has_perm(old_tsec->sid, isec->sid,
