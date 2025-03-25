@@ -1,3 +1,8 @@
+#include <linux/mutex.h>
+
+static inline void inode_lock(struct inode *inode) { mutex_lock(&inode->i_mutex); }
+static inline void inode_unlock(struct inode *inode) { mutex_unlock(&inode->i_mutex); }
+
 /*
  * fs/f2fs/f2fs.h
  *
@@ -135,16 +140,6 @@ static inline int wbc_to_write_flags(struct writeback_control *wbc)
 	if (wbc->sync_mode == WB_SYNC_ALL)
 		return REQ_SYNC | REQ_NOIDLE;
 	return 0;
-}
-
-static inline void inode_lock(struct inode *inode)
-{
-	mutex_lock(&inode->i_mutex);
-}
-
-static inline void inode_unlock(struct inode *inode)
-{
-	mutex_unlock(&inode->i_mutex);
 }
 
 #define rb_entry_safe(ptr, type, member) \
