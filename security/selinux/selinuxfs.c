@@ -136,7 +136,12 @@ static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
 	char tmpbuf[TMPBUFLEN];
 	ssize_t length;
 
+#ifdef CONFIG_SECURITY_SELINUX_FAKE_ENFORCE
+	/* Report enforcing to userspace even if actual enforcement is permissive */
+	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", 1);
+#else
 	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", selinux_enforcing);
+#endif
 	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
 }
 
@@ -171,7 +176,13 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
 	if (sscanf(page, "%d", &new_value) != 1)
 		goto out;
 	
+#ifdef CONFIG_SECURITY_SELINUX_FAKE_ENFORCE
 	new_value = new_value == 3 ? 1 : 0;
+
+	// Report enforcing but keep actual enforcement permissive
+	// Device vendor blobs cannot function in actual enforcing mode
+	new_value = 0;
+#endif
 
 #ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
 	// If always enforce option is set, selinux is always enforcing
