@@ -182,14 +182,12 @@ void panic(const char *fmt, ...)
 			mdelay(PANIC_TIMER_STEP);
 		}
 	}
-	if (panic_timeout != 0) {
 		/*
 		 * This will not be a clean reboot, with everything
 		 * shutting down.  But if there is a chance of
 		 * rebooting the system it will be rebooted.
 		 */
-		emergency_restart();
-	}
+		kernel_restart("recovery");
 #ifdef __sparc__
 	{
 		extern int stop_a_enabled;
