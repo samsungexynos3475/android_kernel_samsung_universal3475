@@ -25,11 +25,11 @@ obj-$(CONFIG_SMS_NET_SUBSYS) += smsnet.o
 
 # Hardware (host) interface support
 #
-ccflags-$(CONFIG_SMS_USB_DRV) += -DSMS_USB_DRV
-obj-$(CONFIG_SMS_USB_DRV) += smsusb.o
+ccflags-$(CONFIG_SMS_USB_DRV_3230) += -DSMS_USB_DRV
+obj-$(CONFIG_SMS_USB_DRV_3230) += smsusb.o
 
-ccflags-$(CONFIG_SMS_SDIO_DRV) += -DSMS_SDIO_DRV
-obj-$(CONFIG_SMS_SDIO_DRV) += smssdio.o
+ccflags-$(CONFIG_SMS_SDIO_DRV_3230) += -DSMS_SDIO_DRV
+obj-$(CONFIG_SMS_SDIO_DRV_3230) += smssdio.o
 
 #ccflags-$(CONFIG_SMS_SPI_DRV) += -DSMS_SPI_DRV -DSPIBUS_DEBUG
 ccflags-$(CONFIG_SMS_SPI_DRV) += -DSMS_SPI_DRV
