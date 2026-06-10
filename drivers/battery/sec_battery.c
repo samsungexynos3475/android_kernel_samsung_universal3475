@@ -606,57 +606,7 @@ battery_check_error:
 
 static bool sec_bat_check(struct sec_battery_info *battery)
 {
-	bool ret;
-	ret = true;
-
-	if (battery->factory_mode || battery->is_jig_on) {
-		dev_dbg(battery->dev, "%s: No need to check in factory mode\n",
-			__func__);
-		return ret;
-	}
-
-	if (battery->health != POWER_SUPPLY_HEALTH_GOOD &&
-		battery->health != POWER_SUPPLY_HEALTH_UNSPEC_FAILURE) {
-		dev_dbg(battery->dev, "%s: No need to check\n", __func__);
-		return ret;
-	}
-
-	switch (battery->pdata->battery_check_type) {
-	case SEC_BATTERY_CHECK_ADC:
-		if (battery->cable_type == POWER_SUPPLY_TYPE_BATTERY)
-			ret = battery->present;
-		else
-			ret = sec_bat_check_vf_adc(battery);
-		break;
-	case SEC_BATTERY_CHECK_INT:
-		if (battery->cable_type == POWER_SUPPLY_TYPE_BATTERY)
-			ret = battery->present;
-		else {
-			msleep(50);
-			/* high is miss the battery */
-			ret = !(gpio_get_value(battery->pdata->bat_irq_gpio));
-		}
-		break;
-	case SEC_BATTERY_CHECK_CALLBACK:
-		if (battery->cable_type == POWER_SUPPLY_TYPE_BATTERY) {
-			ret = battery->present;
-		} else {
-			if (battery->pdata->check_battery_callback)
-				ret = battery->pdata->check_battery_callback();
-		}
-		break;
-	case SEC_BATTERY_CHECK_PMIC:
-	case SEC_BATTERY_CHECK_FUELGAUGE:
-	case SEC_BATTERY_CHECK_CHARGER:
-		ret = sec_bat_check_by_psy(battery);
-		break;
-	case SEC_BATTERY_CHECK_NONE:
-		dev_dbg(battery->dev, "%s: No Check\n", __func__);
-	default:
-		break;
-	}
-
-	return ret;
+	return true;
 }
 
 static bool sec_bat_get_cable_type(
