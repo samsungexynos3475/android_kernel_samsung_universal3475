@@ -274,7 +274,11 @@ int sm5703_update_reg(struct i2c_client *i2c, u8 reg, u8 val, u8 mask)
 	if (ret >= 0) {
 		u8 old_val = ret & 0xff;
 		u8 new_val = (val & mask) | (old_val & (~mask));
-		ret = i2c_smbus_write_byte_data(i2c, reg, new_val);
+		if (new_val == old_val) {
+			ret = 0;
+		} else {
+			ret = i2c_smbus_write_byte_data(i2c, reg, new_val);
+		}
 	}
 	mutex_unlock(&chip->io_lock);
 	return ret;
@@ -286,6 +290,7 @@ int sm5703_assign_bits(struct i2c_client *i2c, int reg,
 {
 	struct sm5703_mfd_chip *chip = i2c_get_clientdata(i2c);
 	unsigned char value;
+	unsigned char old_value;
 	int ret;
 
 	mutex_lock(&chip->io_lock);
@@ -294,8 +299,15 @@ int sm5703_assign_bits(struct i2c_client *i2c, int reg,
 	if (ret < 0)
 		goto out;
 
+	old_value = value;
 	value &= ~mask;
 	value |= data;
+
+	if (value == old_value) {
+		ret = 0;
+		goto out;
+	}
+
 	ret = i2c_smbus_write_byte_data(i2c, reg, value);
 
 	pr_debug("%s : ret = 0x%x, reg = 0x%x, value = 0x%x, data = 0x%x\n",
