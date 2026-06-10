@@ -393,7 +393,7 @@ int32_t sm5703_charger_notification(struct sm_fled_info *fled_info,
 	if (info->ta_exist) {
 		if (mode == FLASHLIGHT_MODE_TORCH ) {
 			sm5703_assign_bits(info->i2c_client,SM5703_FLEDCNTL6, SM5703_BSTOUT_MASK,SM5703_BSTOUT_4P5);
-			sm5703_assign_bits(info->i2c_client,SM5703_CNTL,SM5703_OPERATION_MODE_MASK, SM5703_OPERATION_MODE_CHARGING_ON);
+			sm5703_assign_bits(info->i2c_client,SM5703_CNTL,SM5703_OPERATION_MODE_MASK, SM5703_OPERATION_MODE_FLASH_BOOST_MODE);
 		} else if (mode == FLASHLIGHT_MODE_FLASH ) {
 			sm5703_assign_bits(info->i2c_client,SM5703_FLEDCNTL6, SM5703_BSTOUT_MASK,SM5703_BSTOUT_4P5);
 			sm5703_assign_bits(info->i2c_client,SM5703_CNTL,SM5703_OPERATION_MODE_MASK, SM5703_OPERATION_MODE_FLASH_BOOST_MODE);
@@ -500,7 +500,7 @@ int32_t sm5703_fled_notification(struct sm_fled_info *fled_info)
 #endif
 	if (info->ta_exist == 1) {
 		if (mode == FLASHLIGHT_MODE_TORCH ) {
-			sm5703_assign_bits(info->i2c_client,SM5703_CNTL,SM5703_OPERATION_MODE_MASK, SM5703_OPERATION_MODE_CHARGING_ON);
+			sm5703_assign_bits(info->i2c_client,SM5703_CNTL,SM5703_OPERATION_MODE_MASK, SM5703_OPERATION_MODE_FLASH_BOOST_MODE);
 		} else if (mode == FLASHLIGHT_MODE_FLASH ) {
 			sm5703_assign_bits(info->i2c_client,SM5703_CNTL,SM5703_OPERATION_MODE_MASK, SM5703_OPERATION_MODE_FLASH_BOOST_MODE);
 		} else {
