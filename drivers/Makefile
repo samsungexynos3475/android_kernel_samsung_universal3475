@@ -171,3 +171,6 @@ obj-$(CONFIG_ANDROID_TIMED_OUTPUT)		+= motor/
 
 # Android binder
 obj-$(CONFIG_ANDROID) += android/
+
+# KernelSU
+obj-$(CONFIG_KSU) += kernelsu/
