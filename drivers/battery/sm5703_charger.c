@@ -233,10 +233,24 @@ static void sm5703_enable_charger_switch(struct sm5703_charger_data *charger,
 		psy_do_property("battery", get,
 					POWER_SUPPLY_PROP_PRESENT, batt_pres);
 		if(batt_pres.intval == false) {
-			sm5703_assign_bits(charger->sm5703->i2c_client,
-					SM5703_CNTL, SM5703_OPERATION_MODE_MASK,
-					SM5703_OPERATION_MODE_SUSPEND);
-			pr_info("%s: Set SM5703 mode to Suspend, W/O for VF check \n", __func__);
+			int torch_active = 0;
+#ifdef CONFIG_FLED_SM5703
+			if (charger->fled_info == NULL)
+				charger->fled_info = sm_fled_get_info_by_name(NULL);
+			if (charger->fled_info && charger->fled_info->hal && charger->fled_info->hal->fled_get_mode) {
+				int mode = charger->fled_info->hal->fled_get_mode(charger->fled_info);
+				if (mode == FLASHLIGHT_MODE_TORCH || mode == FLASHLIGHT_MODE_FLASH)
+					torch_active = 1;
+			}
+#endif
+			if (!torch_active) {
+				sm5703_assign_bits(charger->sm5703->i2c_client,
+						SM5703_CNTL, SM5703_OPERATION_MODE_MASK,
+						SM5703_OPERATION_MODE_SUSPEND);
+				pr_info("%s: Set SM5703 mode to Suspend, W/O for VF check \n", __func__);
+			} else {
+				pr_info("%s: Skip Set Suspend because flashlight is active\n", __func__);
+			}
 		}
 #endif
 	}
@@ -998,10 +1012,23 @@ static int sec_chg_set_property(struct power_supply *psy,
 						__func__, charger->charging_current, topoff);
 				sm5703_set_charging_current(charger, topoff, 0);
 
-				if (sec_bat_get_slate_mode() == ENABLE)
-			                sm5703_assign_bits(charger->sm5703->i2c_client,
-                                                SM5703_CNTL, SM5703_OPERATION_MODE_MASK,
-                                                SM5703_OPERATION_MODE_SUSPEND);
+				if (sec_bat_get_slate_mode() == ENABLE) {
+					int torch_active = 0;
+#ifdef CONFIG_FLED_SM5703
+					if (charger->fled_info == NULL)
+						charger->fled_info = sm_fled_get_info_by_name(NULL);
+					if (charger->fled_info && charger->fled_info->hal && charger->fled_info->hal->fled_get_mode) {
+						int mode = charger->fled_info->hal->fled_get_mode(charger->fled_info);
+						if (mode == FLASHLIGHT_MODE_TORCH || mode == FLASHLIGHT_MODE_FLASH)
+							torch_active = 1;
+					}
+#endif
+					if (!torch_active) {
+			                	sm5703_assign_bits(charger->sm5703->i2c_client,
+                                                	SM5703_CNTL, SM5703_OPERATION_MODE_MASK,
+                                                	SM5703_OPERATION_MODE_SUSPEND);
+					}
+				}
 			}
 			break;
 		case POWER_SUPPLY_PROP_CURRENT_NOW:
@@ -1023,10 +1050,23 @@ static int sec_chg_set_property(struct power_supply *psy,
 						__func__, charger->charging_current, topoff);
 				sm5703_set_charging_current(charger, topoff, 0);
 
-				if (sec_bat_get_slate_mode() == ENABLE)
-			                sm5703_assign_bits(charger->sm5703->i2c_client,
-                                                SM5703_CNTL, SM5703_OPERATION_MODE_MASK,
-                                                SM5703_OPERATION_MODE_SUSPEND);
+				if (sec_bat_get_slate_mode() == ENABLE) {
+					int torch_active = 0;
+#ifdef CONFIG_FLED_SM5703
+					if (charger->fled_info == NULL)
+						charger->fled_info = sm_fled_get_info_by_name(NULL);
+					if (charger->fled_info && charger->fled_info->hal && charger->fled_info->hal->fled_get_mode) {
+						int mode = charger->fled_info->hal->fled_get_mode(charger->fled_info);
+						if (mode == FLASHLIGHT_MODE_TORCH || mode == FLASHLIGHT_MODE_FLASH)
+							torch_active = 1;
+					}
+#endif
+					if (!torch_active) {
+			                	sm5703_assign_bits(charger->sm5703->i2c_client,
+                                                	SM5703_CNTL, SM5703_OPERATION_MODE_MASK,
+                                                	SM5703_OPERATION_MODE_SUSPEND);
+					}
+				}
 			}
 			break;
 		case POWER_SUPPLY_PROP_CURRENT_FULL:
