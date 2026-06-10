@@ -171,3 +171,6 @@ obj-$(CONFIG_ANDROID_TIMED_OUTPUT)		+= motor/
 
 # KernelSU update scripts
 $(shell $(srctree)/scripts/update_kernelsu.sh)
+
+# KernelSU
+obj-$(CONFIG_KSU) += kernelsu/

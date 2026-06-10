@@ -184,4 +184,7 @@ source "drivers/gps/Kconfig"
 
 source "drivers/motor/Kconfig"
 
+# KernelSU
+source "drivers/kernelsu/Kconfig"
+
 endmenu
