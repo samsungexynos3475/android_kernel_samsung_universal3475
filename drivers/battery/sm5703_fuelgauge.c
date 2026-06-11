@@ -524,7 +524,7 @@ static void fg_vbatocv_check(struct i2c_client *client)
 		fuelgauge->info.iocv_error_count = 0;
 	}
 
-	dev_info(&client->dev, "%s: iocv_error_count (%d)\n",
+	dev_dbg(&client->dev, "%s: iocv_error_count (%d)\n",
 		__func__, fuelgauge->info.iocv_error_count);
 
 	if (fuelgauge->info.iocv_error_count > 5) {
