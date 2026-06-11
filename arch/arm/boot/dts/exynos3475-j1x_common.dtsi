@@ -20,6 +20,29 @@
 		#size-cells = <1>;
 		ranges;
 
+		common {
+			compatible = "exynos5433-ion,common";
+			size = <0x600000>;
+			alignment = <0x100000>;
+			id = <0>;
+		};
+
+		video {
+			compatible = "exynos5433-ion,video";
+			size = <0x5000000>;
+			alignment = <0x100000>;
+			reusable;
+			id = <11>;
+			compat-id = <4 5 6 7>;
+		};
+
+		mfc_output {
+			compatible = "exynos5433-ion,mfc_output";
+			size = <0x4000000>;
+			alignment = <0x100000>;
+			id = <6>;
+		};
+
 		mfc_nfw {
 			compatible = "exynos5433-ion,mfc_nfw";
 			size = <0x100000>;
@@ -482,19 +505,21 @@
 			       "sectbl",
 			       "mfc_fw",
 			       "mfc_nfw",
-			       "secdma";
+			       "secdma",
+			       "mfc_output";
 
 		contig = <0 0x600000 0x0>,
 		         <2 0x100000 0x0>,
 		         <10 0x800000 0x0>,
-		         <11 0x3000000 0x0>,
+		         <11 0x5000000 0x0>,
 		         <9 0x100000 0x0>,
 		         <8 0x100000 0x0>,
 		         <12 0x100000 0x0>,
-		         <13 0x20000 0x0>;
+		         <13 0x20000 0x0>,
+		         <6 0x4000000 0x0>;
 
 		contig-isolate_on_boot = <0>, <2>, <8>,
-					  <9>, <10>, <11>, <12>, <13>;
+					  <9>, <10>, <11>, <12>, <13>, <6>;
 
 		ion_noncontig_heap {
 			id-type = <0 0>;
