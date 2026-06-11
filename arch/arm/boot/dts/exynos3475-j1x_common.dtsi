@@ -475,26 +475,22 @@
 	ion {
 		compatible = "samsung,exynos5430-ion";
 
-		contig-names = "common",
-			       "mfc_sh",
+		contig-names = "mfc_sh",
 			       "g2d_wfd",
-			       "video",
 			       "sectbl",
 			       "mfc_fw",
 			       "mfc_nfw",
 			       "secdma";
 
-		contig = <0 0x600000 0x0>,
-		         <2 0x100000 0x0>,
+		contig = <2 0x100000 0x0>,
 		         <10 0x800000 0x0>,
-		         <11 0x3000000 0x0>,
 		         <9 0x100000 0x0>,
 		         <8 0x100000 0x0>,
 		         <12 0x100000 0x0>,
 		         <13 0x20000 0x0>;
 
-		contig-isolate_on_boot = <0>, <2>, <8>,
-					  <9>, <10>, <11>, <12>, <13>;
+		contig-isolate_on_boot = <2>, <8>,
+					  <9>, <10>, <12>, <13>;
 
 		ion_noncontig_heap {
 			id-type = <0 0>;
