@@ -127,12 +127,6 @@ static int ion_cma_allocate(struct ion_heap *heap, struct ion_buffer *buffer,
 	if (!ion_buffer_cached(buffer) && !(buffer->flags & ION_FLAG_PROTECTED)) {
 		if (ion_buffer_need_flush_all(buffer)) {
 			flush_all_cpu_caches();
-		} else {
-			struct sg_table *table = buffer->priv_virt;
-
-			ion_device_sync(buffer->dev, table->sgl, 1,
-					DMA_BIDIRECTIONAL, ion_buffer_flush,
-					false);
 		}
 	}
 #endif
