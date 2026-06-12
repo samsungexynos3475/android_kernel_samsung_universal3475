@@ -313,6 +313,7 @@ static int exynos3_devfreq_mif_probe(struct platform_device *pdev)
 	/* Obtain DLL Lock value on 416MHz */
 	exynos3475_devfreq_set_dll_lock_value(data, DLL_LOCK_LV);
 
+	dev_set_name(data->dev, "bus_mif");
 	data->devfreq = devfreq_add_device(data->dev,
 						&exynos3_devfreq_mif_profile,
 						"simple_exynos",

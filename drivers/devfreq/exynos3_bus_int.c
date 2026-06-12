@@ -279,6 +279,7 @@ static int exynos3_devfreq_int_probe(struct platform_device *pdev)
 	if (data->vdd_int)
 		regulator_set_voltage(data->vdd_int, data->old_volt, data->max_support_voltage);
 
+	dev_set_name(data->dev, "bus_int");
 	data->devfreq = devfreq_add_device(data->dev,
 						&exynos3_devfreq_int_profile,
 						"simple_ondemand",
