@@ -3189,7 +3189,7 @@ CONFIG_STAGING=y
 # Triggers - standalone
 #
 # CONFIG_IIO_SIMPLE_DUMMY is not set
-# CONFIG_ZRAM is not set
+CONFIG_ZRAM=y
 # CONFIG_BCM_WIMAX is not set
 # CONFIG_FT1000 is not set
 
@@ -3957,6 +3957,7 @@ CONFIG_CRYPTO_TWOFISH_COMMON=y
 CONFIG_CRYPTO_DEFLATE=y
 # CONFIG_CRYPTO_ZLIB is not set
 CONFIG_CRYPTO_LZO=y
+CONFIG_CRYPTO_LZ4=y
 
 #
 # Random Number Generation
