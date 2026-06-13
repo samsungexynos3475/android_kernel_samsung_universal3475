@@ -3227,7 +3227,7 @@ CONFIG_STAGING=y
 # Triggers - standalone
 #
 # CONFIG_IIO_SIMPLE_DUMMY is not set
-# CONFIG_ZRAM is not set
+CONFIG_ZRAM=y
 # CONFIG_BCM_WIMAX is not set
 # CONFIG_FT1000 is not set
 
