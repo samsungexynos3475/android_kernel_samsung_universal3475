@@ -53,9 +53,6 @@
 
 #ifdef CONFIG_MMC_DW_FMP_ECRYPT_FS
 #include "fmp_derive_iv.h"
-#if defined(CONFIG_SDP)
-#include <linux/pagemap.h>
-#endif
 #endif
 
 /* Common flag combinations */
@@ -981,31 +978,11 @@ static void dw_mci_idma_reset_dma(struct dw_mci *host)
 static void dw_mci_idmac_complete_dma(struct dw_mci *host)
 {
 	struct mmc_data *data = host->data;
-#if defined(CONFIG_MMC_DW_FMP_ECRYPT_FS) && defined(CONFIG_SDP)
-	struct idmac_desc *desc = host->sg_cpu;
-	unsigned int i, j;
-#endif
 
 	dev_vdbg(host->dev, "DMA complete\n");
 
 	host->dma_ops->cleanup(host);
 
-#if defined(CONFIG_MMC_DW_FMP_ECRYPT_FS) && defined(CONFIG_SDP)
-	if (data && data->sg_len) {
-		for(i = 0; i < data->sg_len; i++) {
-			if (sg_page(&data->sg[i])->mapping && !((unsigned long)(sg_page(&data->sg[i])->mapping) & 0x1)
-				&& sg_page(&data->sg[i])->mapping->key &&
-					((unsigned int)sg_page(&data->sg[i])->index  >= 2)) {
-				for (j = 0; j < DW_MMC_MAX_TRANSFER_SIZE/DW_MMC_SECTOR_SIZE; j++) {
-					if (mapping_sensitive(sg_page(&data->sg[i])->mapping))
-						memset(&(desc->des12), 0x0, sizeof(u32)*(4 + (sg_page(&data->sg[i])->mapping->key_length >> 2)));
-					desc++;
-				}
-			} else
-				desc++;
-		}
-	}
-#endif
 	/*
 	 * If the card was removed, data will be NULL. No point in trying to
 	 * send the stop command or waiting for NBUSY in this case.
