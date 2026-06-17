@@ -20,10 +20,6 @@
 #include <linux/device-mapper.h>
 #include <crypto/hash.h>
 
-#if defined(CONFIG_TZ_ICCC)
-#include <linux/smc.h>
-#define SMC_CMD_DMV_WRITE_STATUS (0x83000014)
-#endif
 
 #define DM_MSG_PREFIX			"verity"
 
@@ -414,9 +410,6 @@ test_block_hash:
 				(unsigned long long)(io->block + b));
 			if (io->block != 0) {
 			v->hash_failed = 1;
-#if defined(CONFIG_TZ_ICCC)
-			printk(KERN_ERR "ICCC smc ret = %d \n",exynos_smc(SMC_CMD_DMV_WRITE_STATUS, 1, 0, 0));
-#endif
 			return -EIO;
 		}
 	}

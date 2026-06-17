@@ -661,33 +661,6 @@ out:
 	return ret;
 }
 
-/* START_OF_KNOX_VPN */
-/** The function sets the domain name associated with the socket. **/
-static int sock_set_domain_name(struct sock *sk, char __user *optval,
-                int optlen)
-{
-    int ret = -EADDRNOTAVAIL;
-    char domain[255];
-
-    ret = -EINVAL;
-    if (optlen < 0)
-        goto out;
-
-    if (optlen > 255 - 1)
-        optlen = 255 - 1;
-
-    memset(domain, 0, sizeof(domain));
-
-    ret = -EFAULT;
-    if (copy_from_user(domain, optval, optlen))
-        goto out;
-    memcpy(sk->domain_name,domain, sizeof(sk->domain_name)-1);
-    ret = 0;
-
-out:
-    return ret;
-}
-/* END_OF_KNOX_VPN */
 
 static inline void sock_valbool_flag(struct sock *sk, int bit, int valbool)
 {
@@ -718,10 +691,6 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
 	if (optname == SO_BINDTODEVICE)
 		return sock_setbindtodevice(sk, optval, optlen);
 
-    /* START_OF_KNOX_VPN */
-    if (optname == SO_SET_DOMAIN_NAME)
-        return sock_set_domain_name(sk, optval, optlen);
-    /* END_OF_KNOX_VPN */
 
 	if (optlen < sizeof(int))
 		return -EINVAL;
@@ -1340,10 +1309,6 @@ static struct sock *sk_prot_alloc(struct proto *prot, gfp_t priority,
 		if (!try_module_get(prot->owner))
 			goto out_free_sec;
 		sk_tx_queue_clear(sk);
-// ------------- START of KNOX_VPN ------------------//
-        sk->knox_uid = current->cred->uid;
-        sk->knox_pid = current->tgid;
-// ------------- END of KNOX_VPN -------------------//
 	}
 
 	return sk;
@@ -1409,9 +1374,6 @@ struct sock *sk_alloc(struct net *net, int family, gfp_t priority,
 {
 	struct sock *sk;
 
-	/* START_OF_KNOX_VPN */
-	struct timespec open_timespec;
-	/* END_OF_KNOX_VPN */
 
 	sk = sk_prot_alloc(prot, priority | __GFP_ZERO, family);
 	if (sk) {
@@ -1427,12 +1389,6 @@ struct sock *sk_alloc(struct net *net, int family, gfp_t priority,
 
 		sock_update_classid(sk);
 		sock_update_netprioidx(sk);
-		/* START_OF_KNOX_VPN */
-		sk->knox_uid = current->cred->uid;
-		sk->knox_pid = current->tgid;
-		open_timespec = current_kernel_time();
-		sk->open_time = open_timespec.tv_sec;
-		/* END_OF_KNOX_VPN */
 	}
 
 	return sk;
