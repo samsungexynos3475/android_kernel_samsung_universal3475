@@ -41,9 +41,6 @@
 #include "objsec.h"
 #include "conditional.h"
 
-#if defined(CONFIG_TZ_ICCC)
-#include <linux/security/Iccc_Interface.h>
-#endif
 
 /* Policy capability filenames */
 static char *policycap_names[] = {
@@ -202,18 +199,6 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
 #endif
 	length = count;
 
-#if defined(CONFIG_TZ_ICCC)
-	if (selinux_enabled && selinux_enforcing) {
-		if (0 != Iccc_SaveData_Kernel(SELINUX_STATUS,0x0)) {
-			printk(KERN_ERR "%s: Iccc_SaveData_Kernel failed, type = %x, value =%x\n", __func__,SELINUX_STATUS,0x0);
-		}
-	}
-	else {
-		if (0 != Iccc_SaveData_Kernel(SELINUX_STATUS,0x1)) {
-			printk(KERN_ERR "%s: Iccc_SaveData_Kernel failed, type = %x, value =%x\n", __func__,SELINUX_STATUS,0x1);
-		}
-	}
-#endif
 
 out:
 	free_page((unsigned long) page);

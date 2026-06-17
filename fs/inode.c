@@ -180,9 +180,6 @@ int inode_init_always(struct super_block *sb, struct inode *inode)
 	mapping->cc_enable = 0;
 #endif
 #endif
-#ifdef CONFIG_SDP
-	mapping->userid = 0;
-#endif
 
 	/*
 	 * If the block_device provides a backing_dev_info for client

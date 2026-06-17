@@ -452,9 +452,6 @@ struct address_space {
 	bool			cc_enable;	/* cc flag */
 #endif
 #endif
-#ifdef CONFIG_SDP
-	int userid;
-#endif
 } __attribute__((aligned(sizeof(long))));
 	/*
 	 * On most architectures that alignment is already the case; but

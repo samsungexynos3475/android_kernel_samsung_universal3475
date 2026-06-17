@@ -48,9 +48,6 @@ static struct dev_table essential_device_table[] = {
 	{ .dev = { USB_DEVICE(0x08bb, 0x27c4), },
 	   .index = SMARTDOCK_INDEX,
 	}, /* TI USB Audio DAC 2 */
-	{ .dev = { USB_DEVICE(0x0424, 0xec00), },
-	   .index = MMDOCK_INDEX,
-	}, /* Knox Desktop */
 	{}
 };
 
