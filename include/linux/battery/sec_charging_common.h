@@ -737,13 +737,13 @@ static inline struct power_supply *get_power_supply_by_name(char *name)
 	int ret;	\
 	psy = get_power_supply_by_name((name));	\
 	if (!psy) {	\
-		pr_err("%s: Fail to "#function" psy (%s)\n",	\
+		pr_debug("%s: Fail to "#function" psy (%s)\n",	\
 			__func__, (name));	\
 		value.intval = 0;	\
 	} else {	\
 		ret = psy->function##_property(psy, (property), &(value)); \
 		if (ret < 0) {	\
-			pr_err("%s: Fail to "#name" "#function" (%d=>%d)\n", \
+			pr_debug("%s: Fail to "#name" "#function" (%d=>%d)\n", \
 				__func__, (property), ret);	\
 			value.intval = 0;	\
 		}	\
