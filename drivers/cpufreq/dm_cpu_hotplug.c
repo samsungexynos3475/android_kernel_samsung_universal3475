@@ -863,13 +863,7 @@ static enum hotplug_cmd diagnose_condition(void)
 	unsigned int egl_cur_freq;
 #endif
 
-#if defined(CONFIG_CPU_FREQ_GOV_INTERACTIVE)
-	normal_min_freq = cpufreq_interactive_get_hispeed_freq(0);
-	if (!normal_min_freq)
-		normal_min_freq = NORMALMIN_FREQ;
-#else
-	normal_min_freq = NORMALMIN_FREQ;
-#endif
+normal_min_freq = NORMALMIN_FREQ;
 
 #ifdef CONFIG_ARM_EXYNOS_MP_CPUFREQ
 	policy = cpufreq_cpu_get(0);
@@ -918,8 +912,7 @@ static enum hotplug_cmd diagnose_condition(void)
 		low_stay++;
 	}
 
-	if (low_stay > low_stay_threshold &&
-		(!lcd_is_on || forced_hotplug))
+	if (low_stay > low_stay_threshold)
 		ret = CMD_LOW_POWER;
 
 #ifdef CONFIG_SCHED_HMP
@@ -983,10 +976,10 @@ static void calc_load(void)
 		cpu_util[i] = load;
 		cpu_util_sum += load;
 
-		load_freq = load * policy->cur;
+		load_freq = (load * policy->cur) / 100;
 
-		if (policy->cur > cur_load_freq)
-			cur_load_freq = policy->cur;
+		if (load_freq > cur_load_freq)
+			cur_load_freq = load_freq;
 	}
 
 	cpufreq_cpu_put(policy);
