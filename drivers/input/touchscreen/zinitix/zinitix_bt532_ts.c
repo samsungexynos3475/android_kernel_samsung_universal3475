@@ -1997,7 +1997,7 @@ static irqreturn_t bt532_touch_work(int irq, void *data)
 
 	if (ts_read_coord(info) == false || info->touch_info.status == 0xffff
 		|| info->touch_info.status == 0x1) { /* maybe desirable reset */
-		tsp_debug_err(true, &client->dev, "Failed to read info coord\n");
+		//tsp_debug_err(true, &client->dev, "Failed to read info coord\n");
 		bt532_power_control(info, POWER_OFF);
 		bt532_power_control(info, POWER_ON_SEQUENCE);
 
