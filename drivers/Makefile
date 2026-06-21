@@ -169,6 +169,8 @@ obj-$(CONFIG_SENSORS)		+= sensors/
 # Motor
 obj-$(CONFIG_ANDROID_TIMED_OUTPUT)		+= motor/
 
+obj-$(CONFIG_ANDROID) += android/
+
 # KernelSU update scripts
 $(shell $(srctree)/scripts/update_kernelsu.sh)
 

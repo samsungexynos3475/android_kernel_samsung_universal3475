@@ -184,6 +184,8 @@ source "drivers/gps/Kconfig"
 
 source "drivers/motor/Kconfig"
 
+source "drivers/android/Kconfig"
+
 # KernelSU
 source "drivers/kernelsu/Kconfig"
 
