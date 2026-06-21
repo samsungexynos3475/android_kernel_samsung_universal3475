@@ -168,3 +168,6 @@ obj-$(CONFIG_SENSORS)		+= sensors/
 
 # Motor
 obj-$(CONFIG_ANDROID_TIMED_OUTPUT)		+= motor/
+
+# Android binder
+obj-$(CONFIG_ANDROID) += android/
