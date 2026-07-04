@@ -1153,9 +1153,9 @@ int fimc_is_sensor_open(struct fimc_is_device_sensor *device,
 	pdata = device->pdata;
 
 	if (test_bit(FIMC_IS_SENSOR_OPEN, &device->state)) {
-		merr("already open", device);
-		ret = -EMFILE;
-		goto p_err;
+		merr("already open, allowing for Android 12 compat", device);
+		device->open_count++;
+		return 0;
 	}
 
 	clear_bit(FIMC_IS_SENSOR_MCLK_ON, &device->state);
@@ -1218,6 +1218,7 @@ int fimc_is_sensor_open(struct fimc_is_device_sensor *device,
 	device->dtp_check = true;
 #endif
 
+	device->open_count = 1;
 	set_bit(FIMC_IS_SENSOR_OPEN, &device->state);
 
 p_err:
@@ -1242,6 +1243,11 @@ int fimc_is_sensor_close(struct fimc_is_device_sensor *device)
 		merr("already close", device);
 		ret = -EMFILE;
 		goto p_err;
+	}
+
+	device->open_count--;
+	if (device->open_count > 0) {
+		return 0;
 	}
 
 	/* for mediaserver force close */
