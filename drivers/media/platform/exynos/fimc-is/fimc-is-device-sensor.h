@@ -194,6 +194,7 @@ struct fimc_is_device_sensor {
 	bool						request_cam_qos;
 	bool						request_int_qos;
 	bool						request_mif_qos;
+	int						open_count;
 };
 
 int fimc_is_sensor_open(struct fimc_is_device_sensor *device,
