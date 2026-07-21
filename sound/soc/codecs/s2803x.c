@@ -232,11 +232,11 @@ static int s2803x_init_mixer(void)
 			I2S_DL_16BIT << INCTL2_I2S_DL_SHIFT);
 
 	/* BT Configuration Initialisation */
-	/* I2s mode - Mixer Slave - 32 BCK configuration*/
+	/* PCM mode - Mixer Slave - 32 BCK configuration */
 	regmap_write(s2803x->regmap, S2803X_REG_07_IN3_CTL1,
 			MIXER_SLAVE << INCTL1_MASTER_SHIFT |
 			MPCM_SLOT_32BCK << INCTL1_MPCM_SLOT_SHIFT |
-			I2S_PCM_MODE_I2S << INCTL1_I2S_PCM_SHIFT);
+			I2S_PCM_MODE_PCM << INCTL1_I2S_PCM_SHIFT);
 
 	/* 32xfs - i2s format 16bit */
 	regmap_write(s2803x->regmap, S2803X_REG_08_IN3_CTL2,
@@ -246,12 +246,11 @@ static int s2803x_init_mixer(void)
 			I2S_DL_16BIT << INCTL2_I2S_DL_SHIFT);
 
 	/*
-	 * Below setting only requird for PCM mode, but it has no impact for I2S
-	 * mode.
+	 * PCM mode: 1 bck delay, short frame sync.
+	 * 1 bck delay is required by the Broadcom BT chip on this device.
 	 */
-	/* 0 delay, pcm short frme sync */
 	regmap_write(s2803x->regmap, S2803X_REG_09_IN3_CTL3,
-			PCM_DAD_0BCK << INCTL3_PCM_DAD_SHIFT |
+			PCM_DAD_1BCK << INCTL3_PCM_DAD_SHIFT |
 			PCM_DF_SHORT_FRAME << INCTL3_PCM_DF_SHIFT);
 
 	/* SLOT_L - 1st slot */
