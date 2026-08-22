@@ -597,6 +597,12 @@ static irqreturn_t s3c24xx_i2c_irq(int irqno, void *dev_id)
 	unsigned long status;
 	unsigned long tmp;
 
+	/* Guard against IRQ firing while controller is clock-gated
+	 * during suspend/resume. Accessing registers in this state
+	 * causes a Data Abort. */
+	if (i2c->suspended)
+		return IRQ_NONE;
+
 	status = readl(i2c->regs + S3C2410_IICSTAT);
 
 	if (status & S3C2410_IICSTAT_ARBITR) {
@@ -1255,6 +1261,12 @@ static int s3c24xx_i2c_suspend_noirq(struct device *dev)
 
 	i2c->suspended = 1;
 
+	/* Disable IRQ to prevent stale interrupts from firing during
+	 * resume_device_irqs() before the clock domain is powered.
+	 * This increments the IRQ depth counter, so resume_device_irqs()
+	 * will not actually unmask this IRQ. */
+	disable_irq(i2c->irq);
+
 	return 0;
 }
 
@@ -1263,8 +1275,35 @@ static int s3c24xx_i2c_resume_noirq(struct device *dev)
 	struct platform_device *pdev = to_platform_device(dev);
 	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
 
-	i2c->suspended = 0;
+	/* Keep suspended = 1 here. It will be cleared in s3c24xx_i2c_resume()
+	 * which runs after resume_device_irqs(). This protects the IRQ
+	 * handler from accessing unpowered registers if a stale IRQ fires. */
 	i2c->need_hw_init = S3C2410_NEED_REG_INIT;
+
+	return 0;
+}
+
+static int s3c24xx_i2c_resume(struct device *dev)
+{
+	struct platform_device *pdev = to_platform_device(dev);
+	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
+	unsigned long tmp;
+
+	/* Briefly enable clocks to clear any pending I2C interrupt.
+	 * Without this, re-enabling the IRQ could immediately fire the
+	 * handler while the clock gate is still off. */
+	clk_prepare_enable(i2c->clk);
+
+	tmp = readl(i2c->regs + S3C2410_IICCON);
+	tmp &= ~(S3C2410_IICCON_IRQPEND | S3C2410_IICCON_IRQEN);
+	writel(tmp, i2c->regs + S3C2410_IICCON);
+
+	clk_disable_unprepare(i2c->clk);
+
+	i2c->suspended = 0;
+
+	/* Re-enable the IRQ (balances disable_irq in suspend_noirq) */
+	enable_irq(i2c->irq);
 
 	return 0;
 }
@@ -1288,6 +1327,7 @@ static const struct dev_pm_ops s3c24xx_i2c_dev_pm_ops = {
 #ifdef CONFIG_PM_SLEEP
 	.suspend_noirq = s3c24xx_i2c_suspend_noirq,
 	.resume_noirq = s3c24xx_i2c_resume_noirq,
+	.resume = s3c24xx_i2c_resume,
 #endif
 #ifdef CONFIG_PM_RUNTIME
 	.runtime_resume = s3c24xx_i2c_runtime_resume,
