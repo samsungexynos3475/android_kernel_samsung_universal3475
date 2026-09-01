@@ -80,7 +80,7 @@
 		battery,chip_vendor = "LSI";
 		battery,temp_adc_type = <1>; /* SEC_BATTERY_ADC_TYPE_AP */
 
-		battery,polling_time = <10 30 30 30 3600>;
+		battery,polling_time = <10 30 90 30 3600>;
 
 		battery,temp_table_adc = <312 321 329 338 346 355 370 385 400 415 430 445 461 476 492 507 523 539 554 570 586 606 625 645 664 684 706 729 751 774
 					796 822 847 873 898 924 946 968 991 1013 1035 1072 1109 1146 1183 1220 1257 1295 1332 1370
